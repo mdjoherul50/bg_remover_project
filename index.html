@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Background Remover & Editor</title>
+    <title>AI Photo Editor</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Cropper.js CSS -->
+    <!-- Third-party Libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
     <style>
         :root {
@@ -119,7 +119,7 @@
             font-weight: 500;
         }
         .crop-image-container {
-            max-height: 60vh;
+            max-height: 75vh;
         }
         .crop-image-container img {
             max-width: 100%;
@@ -254,21 +254,21 @@
             object-fit: cover;
         }
 
-        .resize-controls .input-group {
+        .export-controls .input-group {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
             margin-bottom: 15px;
         }
-        .resize-controls input {
+        .export-controls input {
             width: 80px;
             padding: 8px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             text-align: center;
         }
-        .resize-controls .action-btn {
+        .export-controls .action-btn {
             width: 100%;
             justify-content: center;
         }
@@ -365,7 +365,7 @@
 </head>
 <body>
     <header>
-        <h1>AI Background Remover & Editor</h1>
+        <h1>AI Photo Editor</h1>
         <p>Crop, remove the background, add colors or images, and resize your photos.</p>
     </header>
 
@@ -430,27 +430,31 @@
                     <input type="file" id="bg-file-input" class="hidden" accept="image/png, image/jpeg">
                 </div>
             </div>
-            <div id="resize-controls-container" class="controls-container resize-controls">
-                <h3>Output Settings</h3>
+            <div id="export-controls-container" class="controls-container export-controls">
+                <h3>Export Settings</h3>
                 <div class="input-group">
                     <input type="number" id="width-input" placeholder="Width">
                     <span>x</span>
                     <input type="number" id="height-input" placeholder="Height">
                     <span>px</span>
                 </div>
-                <button id="apply-resize-btn" class="action-btn secondary">Apply Size</button>
-                <button id="passport-btn" class="action-btn secondary" style="margin-top: 10px;">Passport Photo (2x2)</button>
+                 <div class="input-group">
+                    <label for="filesize-input">Target Size:</label>
+                    <input type="number" id="filesize-input" placeholder="e.g., 100">
+                    <span>KB</span>
+                </div>
+                <button id="passport-btn" class="action-btn secondary" style="margin-top: 10px;">Passport Photo Preset</button>
             </div>
         </div>
 
         <!-- Action Buttons -->
         <div id="actions" class="actions hidden">
-            <a id="download-btn" href="#" download="edited-image.png" class="action-btn">
+            <button id="export-btn" class="action-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                 </svg>
                 Download Image
-            </a>
+            </button>
             <button id="reset-btn" class="action-btn secondary">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.664 0l3.18-3.185m-3.181 9.348a8.25 8.25 0 00-11.664 0l-3.18 3.185m3.181-9.348l-3.181-3.183a8.25 8.25 0 000-11.664l3.18-3.185" />
@@ -462,8 +466,6 @@
     
     <footer>
         <p>Powered by <a href="https://github.com/danielgatis/rembg" target="_blank">rembg</a> & <a href="https://fastapi.tiangolo.com/" target="_blank">FastAPI</a></p>
-
-    
     </footer>
 
     <!-- Cropper.js JS -->
@@ -481,14 +483,14 @@
         const originalImage = document.getElementById('original-image');
         const resultImage = document.getElementById('result-image');
         const actions = document.getElementById('actions');
-        const downloadBtn = document.getElementById('download-btn');
+        const exportBtn = document.getElementById('export-btn');
         const resetBtn = document.getElementById('reset-btn');
         const controlsGrid = document.getElementById('controls-grid');
         const colorPicker = document.getElementById('color-picker');
         const presetSwatches = document.querySelector('.preset-swatches');
         const widthInput = document.getElementById('width-input');
         const heightInput = document.getElementById('height-input');
-        const applyResizeBtn = document.getElementById('apply-resize-btn');
+        const filesizeInput = document.getElementById('filesize-input');
         const passportBtn = document.getElementById('passport-btn');
         const uploadBgBtn = document.getElementById('upload-bg-btn');
         const bgFileInput = document.getElementById('bg-file-input');
@@ -531,10 +533,8 @@
             originalImage.src = '';
             resultImage.src = '';
             bgThumbnail.src = '';
-            if (cropper) {
-                cropper.destroy();
-                cropper = null;
-            }
+            if (cropper) cropper.destroy();
+            cropper = null;
         });
         
         cancelCropBtn.addEventListener('click', () => {
@@ -590,12 +590,11 @@
             }
         });
 
-        applyResizeBtn.addEventListener('click', () => applyEdits());
-
         passportBtn.addEventListener('click', () => {
             if (!currentFile) return;
             widthInput.value = 600;
             heightInput.value = 600;
+            filesizeInput.value = ''; // Clear filesize for passport
             colorPicker.value = '#FFFFFF';
             currentBgColor = '#FFFFFF';
             currentBgImageFile = null;
@@ -604,6 +603,8 @@
             applyEdits(true);
         });
         
+        exportBtn.addEventListener('click', exportImage);
+
         function openCropper(file) {
             if (!file) return;
             const reader = new FileReader();
@@ -617,6 +618,10 @@
                     viewMode: 1,
                     background: false,
                     autoCropArea: 0.8,
+                    movable: true,
+                    rotatable: true,
+                    scalable: true,
+                    zoomable: true,
                 });
             };
             reader.readAsDataURL(file);
@@ -634,6 +639,7 @@
             colorPicker.value = '#FFFFFF';
             widthInput.value = '';
             heightInput.value = '';
+            filesizeInput.value = '';
             updateActiveSwatch(document.querySelector('.swatch[data-color="#FFFFFF"]'));
             applyEdits();
         }
@@ -662,12 +668,6 @@
                 } else if (currentBgColor && currentBgColor !== 'transparent') {
                     formData.append('bg_color', currentBgColor);
                 }
-                const width = widthInput.value;
-                const height = heightInput.value;
-                if (width && height) {
-                    formData.append('width', width);
-                    formData.append('height', height);
-                }
             }
 
             try {
@@ -681,19 +681,81 @@
                 const imageBlob = await response.blob();
                 if(resultImage.src) URL.revokeObjectURL(resultImage.src);
                 const imageUrl = URL.createObjectURL(imageBlob);
-
                 resultImage.src = imageUrl;
-                downloadBtn.href = imageUrl;
 
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
-                resetBtn.click();
+                alert('An error occurred while processing the image. Please check the backend terminal for errors.');
+                spinner.classList.add('hidden');
+                actions.classList.remove('hidden');
             } finally {
                 spinner.classList.add('hidden');
                 actions.classList.remove('hidden');
                 controlsGrid.classList.remove('hidden');
             }
+        }
+        
+        async function exportImage() {
+            const originalSrc = resultImage.src;
+            if (!originalSrc) return;
+
+            exportBtn.textContent = 'Exporting...';
+            exportBtn.disabled = true;
+
+            const targetWidth = parseInt(widthInput.value);
+            const targetHeight = parseInt(heightInput.value);
+            const targetSizeKB = parseInt(filesizeInput.value);
+
+            const img = new Image();
+            img.crossOrigin = "anonymous"; // Important for canvas security
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                canvas.width = targetWidth || img.naturalWidth;
+                canvas.height = targetHeight || img.naturalHeight;
+                
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                if (targetSizeKB) {
+                    // Compression logic
+                    let quality = 0.95;
+                    const targetBytes = targetSizeKB * 1024;
+                    
+                    const compressLoop = (quality) => {
+                        canvas.toBlob(blob => {
+                            if (blob.size <= targetBytes || quality <= 0.1) {
+                                triggerDownload(blob, 'compressed-image.jpeg');
+                                exportBtn.textContent = 'Download Image';
+                                exportBtn.disabled = false;
+                            } else {
+                                compressLoop(quality - 0.1);
+                            }
+                        }, 'image/jpeg', quality);
+                    };
+                    compressLoop(quality);
+
+                } else {
+                    // No compression, just download
+                    canvas.toBlob(blob => {
+                        triggerDownload(blob, 'edited-image.png');
+                        exportBtn.textContent = 'Download Image';
+                        exportBtn.disabled = false;
+                    }, 'image/png');
+                }
+            };
+            img.src = originalSrc;
+        }
+
+        function triggerDownload(blob, fileName) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
     </script>
 
