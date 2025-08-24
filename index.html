@@ -688,6 +688,7 @@
                 alert('An error occurred while processing the image. Please check the backend terminal for errors.');
                 spinner.classList.add('hidden');
                 actions.classList.remove('hidden');
+                // Don't reset the whole UI, just show the action buttons
             } finally {
                 spinner.classList.add('hidden');
                 actions.classList.remove('hidden');
