@@ -2,6 +2,8 @@ from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from rembg import remove
+from fastapi.responses import HTMLResponse
+from pathlib import Path
 from PIL import Image, ImageOps
 import io
 
@@ -18,10 +20,11 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-@app.get("/")
-def read_root():
-    """ A simple endpoint to check if the API is running. """
-    return {"message": "Welcome to the Background Removal API!"}
+@app.get("/", response_class=HTMLResponse)
+def read_index():
+    # Path to your index.html
+    html_path = Path(__file__).parent / "index.html"
+    return html_path.read_text()
 
 @app.post("/remove-background/")
 async def remove_background(
