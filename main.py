@@ -1,20 +1,25 @@
 from fastapi import FastAPI, File, UploadFile, Form
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from rembg import remove
-from fastapi.responses import HTMLResponse
-from pathlib import Path
 from PIL import Image, ImageOps
 import io
+from pathlib import Path
 
 # Initialize the FastAPI app
 app = FastAPI(title="Background Removal API")
 
+# Define the list of allowed origins
+origins = [
+    "http://127.0.0.1:8000",
+    "null", # Allows local file access
+    "https://bg-remover-project.onrender.com", # Your live frontend URL
+]
+
 # Add CORS middleware to allow the frontend to communicate with the backend
-# This is the critical part that fixes the error.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins (including local files with 'null' origin)
+    allow_origins=origins, 
     allow_credentials=True,
     allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
     allow_headers=["*"],  # Allows all headers
