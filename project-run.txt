@@ -1,0 +1,219 @@
+AI Background Remover - Installation & Setup Guide
+==================================================
+
+This guide provides step-by-step instructions to clone, install, and run the AI Background Remover project from GitHub.
+
+DESCRIPTION
+-----------
+A powerful web application that uses AI to automatically remove backgrounds from images.
+Built with FastAPI (Python backend) and HTML/CSS/JavaScript (frontend).
+
+Features:
+- AI-powered background removal using rembg library
+- Drag-and-drop interface
+- Side-by-side image comparison
+- Fast processing with FastAPI
+- Clean, modern UI
+
+PREREQUISITES
+-------------
+- Python 3.8 or higher
+- Git (for cloning the repository)
+- Modern web browser (Chrome, Firefox, Edge, Safari)
+
+INSTALLATION FROM GITHUB
+-----------------------
+
+### Method 1: Direct Git Clone (Recommended)
+
+1. Open Command Prompt/Terminal
+2. Navigate to your desired project directory:
+   ```bash
+   cd "C:\path\to\your\projects"
+   ```
+
+3. Clone the repository:
+   ```bash
+   git clone https://github.com/mdjoherul50/bg_remover_project.git
+   ```
+
+4. Navigate to the project directory:
+   ```bash
+   cd bg_remover_project
+   ```
+
+### Method 2: Download ZIP Archive
+
+1. Go to the GitHub repository
+2. Click "Code" → "Download ZIP"
+3. Extract the ZIP file to your desired location
+4. Open Command Prompt/Terminal and navigate to the extracted folder
+
+SETUP & INSTALLATION
+-------------------
+
+### Step 1: Create Virtual Environment
+
+**Windows:**
+```bash
+# Create virtual environment
+py -m venv venv
+
+# Activate virtual environment
+.\venv\Scripts\activate
+```
+
+**macOS/Linux:**
+```bash
+# Create virtual environment
+python3 -m venv venv
+
+# Activate virtual environment
+source venv/bin/activate
+```
+
+You should see "(venv)" at the beginning of your command prompt.
+
+### Step 2: Install Dependencies
+
+```bash
+# Install all required packages
+pip install -r requirements.txt
+```
+
+This will install:
+- FastAPI (web framework)
+- uvicorn (ASGI server)
+- rembg (AI background removal)
+- Pillow (image processing)
+- python-multipart (file uploads)
+- onnxruntime (ML model support)
+
+RUNNING THE APPLICATION
+----------------------
+
+### Option 1: Local Development (Recommended for Development)
+
+#### Step 1: Start the Backend Server
+
+```bash
+# Start the FastAPI server with auto-reload
+uvicorn main:app --reload
+```
+
+You should see output like:
+```
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Application startup complete.
+```
+
+#### Step 2: Open the Application
+
+1. Open your web browser
+2. Navigate to: http://127.0.0.1:8000
+3. The application will load with the main interface
+
+### Option 2: Live Deployment
+
+The application is also deployed and available online at:
+**🌐 https://bg-remover-project.onrender.com/**
+
+You can use the live version directly without any installation:
+- No setup required
+- Works on any device with internet access
+- Always up-to-date with the latest features
+
+USING THE APPLICATION
+--------------------
+
+1. **Upload Image:**
+   - Drag and drop an image onto the upload area
+   - OR click the upload area to select a file from your computer
+
+2. **Processing:**
+   - Wait a few seconds for AI processing
+   - You'll see a loading spinner during processing
+
+3. **View Results:**
+   - See side-by-side comparison (original vs processed image)
+   - The processed image will have the background removed
+
+4. **Download:**
+   - Click "Download Image" to save the result as PNG
+   - Click "Upload New" to process another image
+
+TROUBLESHOOTING
+--------------
+
+### Common Issues:
+
+1. **"Python not found" error:**
+   - Ensure Python 3.8+ is installed
+   - Check if Python is added to your system PATH
+
+2. **"Module not found" errors:**
+   - Make sure virtual environment is activated
+   - Run `pip install -r requirements.txt` again
+
+3. **Port 8000 already in use:**
+   - Close other applications using port 8000
+   - OR use a different port: `uvicorn main:app --reload --port 8001`
+
+4. **Background removal not working:**
+   - Ensure you have a stable internet connection (downloads ML model on first use)
+   - Try with a different image format (PNG, JPG, JPEG supported)
+
+5. **Virtual environment not activating:**
+   - Windows: Use `.\venv\Scripts\activate`
+   - macOS/Linux: Use `source venv/bin/activate`
+
+### Performance Tips:
+
+- First run may be slow as it downloads the AI model
+- Use images under 10MB for best performance
+- Supported formats: PNG, JPG, JPEG, WEBP
+
+### Development Mode:
+
+The `--reload` flag automatically restarts the server when you make code changes.
+Keep the terminal running while developing.
+
+### Production Deployment:
+
+For production use, consider:
+- Using a production WSGI server like Gunicorn
+- Setting up a reverse proxy (nginx)
+- Using environment variables for configuration
+
+SUPPORT
+-------
+
+If you encounter issues:
+1. Check the troubleshooting section above
+2. Ensure all prerequisites are met
+3. Try restarting the server
+4. Check the terminal for error messages
+
+For more help, refer to the README.md file in the project root.
+
+---
+
+**Quick Start Command Sequence:**
+
+```bash
+# 1. Clone repository
+git clone https://github.com/mdjoherul50/bg_remover_project.git
+cd bg_remover_project
+
+# 2. Create and activate virtual environment
+py -m venv venv
+.\venv\Scripts\activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Run the application
+uvicorn main:app --reload
+
+# 5. Open browser to http://127.0.0.1:8000
+```
